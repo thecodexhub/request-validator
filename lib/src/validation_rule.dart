@@ -52,8 +52,8 @@ class ValidationRule {
   final bool optional;
 
   /// Message to be set when the field validation fails.
-  /// 
-  /// If the message is null, a default message will be set 
+  ///
+  /// If the message is null, a default message will be set
   /// at the time of validation failure.
   final String? message;
 

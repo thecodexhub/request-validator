@@ -70,7 +70,7 @@ abstract class RequestValidator {
     return '''The field '$fieldName' is invalid. Please check the validation rules for this field.''';
   }
 
-  /// Private method that iterates through validation rules to build 
+  /// Private method that iterates through validation rules to build
   /// a list of [ValidationError] objects when [ValidationRule] fails.
   List<ValidationError> _validateRulesAndFindErrors(JsonMap requestBody) {
     final errors = <ValidationError>[];
