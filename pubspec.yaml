@@ -1,8 +1,11 @@
 name: request_validator
 description: A middleware to validate request body before route handler, focused with Dart Frog.
-version: 0.1.0
 repository: https://github.com/thecodexhub/request-validator
 issue_tracker: https://github.com/thecodexhub/request-validator/issues
+homepage: https://github.com/thecodexhub/request-validator
+documentation: https://github.com/thecodexhub/request-validator
+
+version: 0.1.0
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
