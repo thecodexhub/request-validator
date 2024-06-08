@@ -1,0 +1,30 @@
+### POST /person with valid data
+POST http://localhost:8080/person
+Content-Type: application/json
+
+{
+  "username": "thecodexhub",
+  "age": 24,
+  "email": "thecodexhubofficial@gmail.com",
+  "gender": "male"
+}
+
+### POST /person with no username and age field
+POST http://localhost:8080/person
+Content-Type: application/json
+
+{
+  "email": "thecodexhubofficial@gmail.com",
+  "gender": "male"
+}
+
+### POST /person with invalid email and gender
+POST http://localhost:8080/person
+Content-Type: application/json
+
+{
+  "username": "thecodexhub",
+  "age": 24,
+  "email": "abc",
+  "gender": ""
+}
