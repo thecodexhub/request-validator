@@ -35,7 +35,7 @@ class ValidationRule {
   /// currently only extracts fields from request body to validate. Other
   /// locations, e.g., params, query, form-data will be introduced later.
   ///
-  /// TODO(thecodexhub): Add support for other field location.
+  // TODO(thecodexhub): Add support for other field location.
   final String location;
 
   /// The name of the field.
