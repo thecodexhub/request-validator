@@ -21,7 +21,7 @@ enum Gender {
 }
 
 /// {@template person}
-/// A class representing a person with basic information like 
+/// A class representing a person with basic information like
 /// username, email, age, and gender.
 /// {@endtemplate}
 @immutable
