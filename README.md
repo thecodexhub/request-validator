@@ -4,6 +4,7 @@ A middleware to validate request body before route handler, currently focused wi
 
 [![Build Status][build_status_badge]][build_status_link]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
+[![Package Version][package_version]][package_link]
 [![Code Coverage][coverage_badge]](https://github.com/thecodexhub/request-validator/actions)
 [![Powered by Mason][mason_badge]][mason_link]
 [![License: MIT][license_badge]][license_link]
@@ -54,6 +55,26 @@ class PersonValidator extends RequestValidator {
 }
 ```
 
+#### 📍 <ins>Other Properties of ValidationRule</ins>
+
+- **optional**: Specifies whether the field being validated is optional within the request body. If true, the library first checks if the field exists in the request body. If it's missing, the validation for that field is skipped.
+- **message**: Defines a custom error message to be used when the validation for this field fails. If null (the default), a generic error message will be provided during validation failure. This custom message will be included in the ValidationError object returned when validation fails.
+
+A more complete example with `ValidationRule`
+
+```dart
+static final _emailRegExp = RegExp(
+  r'^[a-zA-Z\d.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z\d-]+(?:\.[a-zA-Z\d-]+)*$',
+);
+
+ValidationRule.body(
+  'email',
+  (value) => value is String && _emailRegExp.hasMatch(value),
+  optional: false,
+  message: 'Either the email field is empty or invalid!',
+),
+```
+
 ### 📦 Use PersonValidator as Middleware
 
 ```dart
@@ -64,6 +85,10 @@ Handler middleware(Handler handler) {
   return handler.use(validator.serveAsMiddleware());
 }
 ```
+
+## 🧩 Example
+
+See the [example][example] Dart Frog app.
 
 ## ✨ Maintainers
 
@@ -79,3 +104,6 @@ Handler middleware(Handler handler) {
 [coverage_badge]: https://raw.githubusercontent.com/thecodexhub/request-validator/main/coverage_badge.svg
 [build_status_badge]: https://github.com/thecodexhub/request-validator/workflows/ci/badge.svg
 [build_status_link]: https://github.com/thecodexhub/request-validator/actions
+[example]: ./example/
+[package_version]: https://img.shields.io/pub/v/request_validator.svg
+[package_link]: https://pub.dev/packages/request_validator
