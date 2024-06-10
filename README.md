@@ -1,6 +1,6 @@
 # Request Validator
 
-A middleware to validate request body before route handler, currently focused with Dart Frog.
+A middleware to validate request object before route handler, currently focused with Dart Frog.
 
 [![Build Status][build_status_badge]][build_status_link]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
@@ -13,7 +13,7 @@ A middleware to validate request body before route handler, currently focused wi
 
 ## 🧭 Overview
 
-The goal of this library is to provide functionalities to simplify request body validation in Dart Frog applications. It allows to define custom validation rules for different fields within the request body, ensuring data integrity and preventing invalid processing.
+The goal of this library is to provide functionalities to simplify request object validation in Dart Frog applications. It allows to define custom validation rules for different fields within the request object, ensuring data integrity and preventing invalid processing.
 
 ## 🚧 Installation
 
@@ -46,11 +46,11 @@ class PersonValidator extends RequestValidator {
     );
   }
 
-  // Override validator rules to handle validating request body object
+  // Override validator rules to handle validating request body and query params
   @override
   List<ValidationRule> validationRules() => [
         ValidationRule.body('name', (value) => value is String),
-        ValidationRule.body('age', (value) => value is int && value > 0),
+        ValidationRule.query('code', (value) => int.parse(value) > 0),
       ];
 }
 ```
@@ -102,7 +102,7 @@ See the [example][example] Dart Frog app.
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [coverage_badge]: https://raw.githubusercontent.com/thecodexhub/request-validator/main/coverage_badge.svg
-[build_status_badge]: https://github.com/thecodexhub/request-validator/workflows/ci/badge.svg
+[build_status_badge]: https://github.com/thecodexhub/request-validator/actions/workflows/main.yaml/badge.svg?branch=main
 [build_status_link]: https://github.com/thecodexhub/request-validator/actions
 [example]: ./example/
 [package_version]: https://img.shields.io/pub/v/request_validator.svg
