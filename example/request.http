@@ -28,3 +28,12 @@ Content-Type: application/json
   "email": "abc",
   "gender": ""
 }
+
+### Query validation - with valid code
+GET http://localhost:8080/person/2?code=101
+
+### Query Validation - with no queries
+GET http://localhost:8080/person/2
+
+### Query Validation - with invalid query
+GET http://localhost:8080/person/2?code=sandip
