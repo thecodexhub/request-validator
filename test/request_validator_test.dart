@@ -13,6 +13,8 @@ class _MockRequestContext extends Mock implements RequestContext {}
 
 class _MockRequest extends Mock implements Request {}
 
+class _MockUri extends Mock implements Uri {}
+
 void main() {
   group('RequestValidator', () {
     RequestValidator createSubject() => PersonValidator();
@@ -54,69 +56,145 @@ void main() {
     group('middleware', () {
       late RequestContext context;
       late Request request;
+      late Uri uri;
 
-      setUp(() {
-        context = _MockRequestContext();
-        request = _MockRequest();
-        when(() => request.method).thenReturn(HttpMethod.post);
-        when(request.json).thenAnswer(
-          (_) => Future.value({'age': 24}),
-        );
-        when(() => context.request).thenReturn(request);
+      group('body', () {
+        setUp(() {
+          context = _MockRequestContext();
+          request = _MockRequest();
+          uri = _MockUri();
+          when(() => request.method).thenReturn(HttpMethod.post);
+          when(request.json).thenAnswer(
+            (_) => Future.value({'age': 24}),
+          );
+          when(() => uri.queryParameters).thenReturn(
+            {'code': '101'},
+          );
+          when(() => request.uri).thenReturn(uri);
+          when(() => context.request).thenReturn(request);
+        });
+
+        test('returns 400 when field does not exist in request body', () async {
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.badRequest,
+            ),
+          );
+          expect(
+            await response.body(),
+            '''{"errors":["The field 'name' is invalid. Please check the validation rules for this field."]}''',
+          );
+        });
+
+        test('returns 400 when validation fails in request body', () async {
+          when(request.json).thenAnswer(
+            (_) => Future.value({'name': 123, 'age': 24}),
+          );
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.badRequest,
+            ),
+          );
+          expect(
+            await response.body(),
+            '''{"errors":["The field 'name' is invalid. Please check the validation rules for this field."]}''',
+          );
+        });
+
+        test('returns 200 when validation succeeds with correct body',
+            () async {
+          when(request.json).thenAnswer(
+            (_) => Future.value({'name': 'Bob', 'age': 24}),
+          );
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.ok,
+            ),
+          );
+          expect(await response.body(), '');
+        });
       });
 
-      test('returns 400 with correct body when field does not exist', () async {
-        final middleware = createSubject().serveAsMiddleware();
-        final response = await middleware((_) async => Response())(context);
-        expect(
-          response,
-          isA<Response>().having(
-            (r) => r.statusCode,
-            'statusCode',
-            HttpStatus.badRequest,
-          ),
-        );
-        expect(
-          await response.body(),
-          '''{"errors":["The field 'name' is invalid. Please check the validation rules for this field."]}''',
-        );
-      });
+      group('query', () {
+        setUp(() {
+          context = _MockRequestContext();
+          request = _MockRequest();
+          uri = _MockUri();
+          when(() => request.method).thenReturn(HttpMethod.post);
+          when(request.json).thenAnswer(
+            (_) => Future.value({'name': 'test', 'age': 24}),
+          );
+          when(() => uri.queryParameters).thenReturn(
+            {'code': '101'},
+          );
+          when(() => request.uri).thenReturn(uri);
+          when(() => context.request).thenReturn(request);
+        });
 
-      test('returns 400 with correct body when validation fails', () async {
-        when(request.json).thenAnswer(
-          (_) => Future.value({'name': 123, 'age': 24}),
-        );
-        final middleware = createSubject().serveAsMiddleware();
-        final response = await middleware((_) async => Response())(context);
-        expect(
-          response,
-          isA<Response>().having(
-            (r) => r.statusCode,
-            'statusCode',
-            HttpStatus.badRequest,
-          ),
-        );
-        expect(
-          await response.body(),
-          '''{"errors":["The field 'name' is invalid. Please check the validation rules for this field."]}''',
-        );
-      });
+        test('returns 400 when query does not exist', () async {
+          when(() => uri.queryParameters).thenReturn({});
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.badRequest,
+            ),
+          );
+          expect(
+            await response.body(),
+            '''{"errors":["The field 'code' is invalid. Please check the validation rules for this field."]}''',
+          );
+        });
 
-      test('returns 200 with correct body when validation succeeds', () async {
-        when(request.json).thenAnswer(
-          (_) => Future.value({'name': 'Bob', 'age': 24}),
-        );
-        final middleware = createSubject().serveAsMiddleware();
-        final response = await middleware((_) async => Response())(context);
-        expect(
-          response,
-          isA<Response>().having(
-            (r) => r.statusCode,
-            'statusCode',
-            HttpStatus.ok,
-          ),
-        );
-        expect(await response.body(), '');
+        test('returns 400 when query field fails validation', () async {
+          when(() => uri.queryParameters).thenReturn({'code': 'test'});
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.badRequest,
+            ),
+          );
+          expect(
+            await response.body(),
+            '''{"errors":["The field 'code' is invalid. Please check the validation rules for this field."]}''',
+          );
+        });
+
+        test('returns 200 when query field passes validation', () async {
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.ok,
+            ),
+          );
+          expect(await response.body(), '');
+        });
       });
     });
   });

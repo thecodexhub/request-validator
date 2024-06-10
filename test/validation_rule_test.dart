@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('ValidationRule', () {
-    ValidationRule createSubject({
+    ValidationRule createBodySubject({
       String? fieldName,
       bool Function(dynamic)? validator,
       bool? optional,
@@ -17,14 +17,29 @@ void main() {
       );
     }
 
+    ValidationRule createQuerySubject({
+      String? fieldName,
+      bool Function(String)? validator,
+      bool? optional,
+      String? message,
+    }) {
+      return ValidationRule.query(
+        fieldName ?? 'name',
+        validator ?? (value) => value.isNotEmpty,
+        optional: optional ?? false,
+        message: message ?? 'Name is required',
+      );
+    }
+
     group('contructor', () {
       test('works perfectly', () {
-        expect(createSubject, returnsNormally);
+        expect(createBodySubject, returnsNormally);
+        expect(createQuerySubject, returnsNormally);
       });
     });
 
     test('hashCode is correct', () {
-      final subject = createSubject();
+      final subject = createBodySubject();
       expect(
         subject.hashCode,
         Object.hashAll(
@@ -42,17 +57,23 @@ void main() {
     test('supports equality', () {
       bool mockValidator(dynamic value) => value is Object;
       expect(
-        createSubject(validator: mockValidator),
-        equals(createSubject(validator: mockValidator)),
+        createBodySubject(validator: mockValidator),
+        equals(createBodySubject(validator: mockValidator)),
       );
     });
 
     group('toString', () {
       test('works correctly', () {
         expect(
-          createSubject().toString(),
+          createBodySubject().toString(),
           equals(
             '''ValidationRule.body(name, Closure: (dynamic) => bool, optional: false, message: Name is required)''',
+          ),
+        );
+        expect(
+          createQuerySubject().toString(),
+          equals(
+            '''ValidationRule.query(name, Closure: (dynamic) => bool, optional: false, message: Name is required)''',
           ),
         );
       });

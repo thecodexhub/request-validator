@@ -1,5 +1,4 @@
 import 'package:meta/meta.dart';
-import 'package:request_validator/request_validator.dart';
 
 /// {@template validation_error}
 /// A [ValidationError] represents an error caused from a request
@@ -50,8 +49,8 @@ class ValidationError {
 
 /// Extension on list of [ValidationError]
 extension ValidationErrorX on List<ValidationError> {
-  /// Converts list of [ValidationError] to [JsonMap].
-  JsonMap toMapArray() {
+  /// Converts list of [ValidationError] to [Map].
+  Map<String, dynamic> toMapArray() {
     return {'errors': map((error) => error.errorMessage).toList()};
   }
 }
