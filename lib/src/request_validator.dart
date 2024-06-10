@@ -86,8 +86,8 @@ abstract class RequestValidator {
   /// request body, request query from [Request].
   Future<RequestObject> _requestObject(
     Request request, [
-    bool needBody = true,]
-  ) async {
+    bool needBody = true,
+  ]) async {
     const emptyBodyObj = <String, dynamic>{};
     return (
       !needBody ? emptyBodyObj : await request.json() as RequestBodyObject,
