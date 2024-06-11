@@ -13,7 +13,7 @@ A middleware to validate request object before route handler, currently focused 
 
 ## 🧭 Overview
 
-The goal of this library is to provide functionalities to simplify request object validation in Dart Frog applications. It allows to define custom validation rules for different fields within the request object, ensuring data integrity and preventing invalid processing.
+This library aims to provide functionalities to simplify request object validation in Dart Frog applications. It allows the definition of custom validation rules for different fields within the request object, ensuring data integrity and preventing invalid processing.
 
 ## 🚧 Installation
 
@@ -58,9 +58,11 @@ class PersonValidator extends RequestValidator {
 #### 📍 <ins>Other Properties of ValidationRule</ins>
 
 - **optional**: Specifies whether the field being validated is optional within the request body. If true, the library first checks if the field exists in the request body. If it's missing, the validation for that field is skipped.
-- **message**: Defines a custom error message to be used when the validation for this field fails. If null (the default), a generic error message will be provided during validation failure. This custom message will be included in the ValidationError object returned when validation fails.
+- **message**: Defines a custom error message to be used when the validation for this field fails. If null (the default), a generic error message will be provided during validation failure.
 
-A more complete example with `ValidationRule`
+More complete examples with `ValidationRule`
+
+##### 🟠 Request Body Validation
 
 ```dart
 static final _emailRegExp = RegExp(
@@ -72,6 +74,17 @@ ValidationRule.body(
   (value) => value is String && _emailRegExp.hasMatch(value),
   optional: false,
   message: 'Either the email field is empty or invalid!',
+),
+```
+
+##### 🟣 Request Query Validation
+
+```dart
+ValidationRule.query(
+  'filter',
+  (value) => ['name', 'age', 'email'].contains(value),
+  optional: true,
+  message: 'Valid filters are - name, age, and email.',
 ),
 ```
 
