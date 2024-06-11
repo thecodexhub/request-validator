@@ -1,6 +1,6 @@
 # 0.2.0
 
-- feat: add query paramters validation
+- feat: add query parameters validation
 - docs(README): add documentation on query validation, update badges
 - docs(example): update example app to showcase query validation
 
