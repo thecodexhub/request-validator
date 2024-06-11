@@ -21,7 +21,7 @@ Install the following dependency to the `pubspec.yaml` file of your Dart Frog ap
 
 ```yaml
 dependencies:
-  request_validator: ^0.1.0
+  request_validator: ^0.2.0
 ```
 
 ## 💻 Usage
