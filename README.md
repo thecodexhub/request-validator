@@ -1,6 +1,6 @@
 # Request Validator
 
-A middleware to validate request body before route handler, currently focused with Dart Frog.
+A middleware to validate request object before route handler, currently focused with Dart Frog.
 
 [![Build Status][build_status_badge]][build_status_link]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
@@ -13,7 +13,7 @@ A middleware to validate request body before route handler, currently focused wi
 
 ## 🧭 Overview
 
-The goal of this library is to provide functionalities to simplify request body validation in Dart Frog applications. It allows to define custom validation rules for different fields within the request body, ensuring data integrity and preventing invalid processing.
+This library aims to provide functionalities to simplify request object validation in Dart Frog applications. It allows the definition of custom validation rules for different fields within the request object, ensuring data integrity and preventing invalid processing.
 
 ## 🚧 Installation
 
@@ -46,11 +46,11 @@ class PersonValidator extends RequestValidator {
     );
   }
 
-  // Override validator rules to handle validating request body object
+  // Override validator rules to handle validating request body and query params
   @override
   List<ValidationRule> validationRules() => [
         ValidationRule.body('name', (value) => value is String),
-        ValidationRule.body('age', (value) => value is int && value > 0),
+        ValidationRule.query('code', (value) => int.parse(value) > 0),
       ];
 }
 ```
@@ -58,9 +58,11 @@ class PersonValidator extends RequestValidator {
 #### 📍 <ins>Other Properties of ValidationRule</ins>
 
 - **optional**: Specifies whether the field being validated is optional within the request body. If true, the library first checks if the field exists in the request body. If it's missing, the validation for that field is skipped.
-- **message**: Defines a custom error message to be used when the validation for this field fails. If null (the default), a generic error message will be provided during validation failure. This custom message will be included in the ValidationError object returned when validation fails.
+- **message**: Defines a custom error message to be used when the validation for this field fails. If null (the default), a generic error message will be provided during validation failure.
 
-A more complete example with `ValidationRule`
+More complete examples with `ValidationRule`
+
+##### 🟠 Request Body Validation
 
 ```dart
 static final _emailRegExp = RegExp(
@@ -72,6 +74,17 @@ ValidationRule.body(
   (value) => value is String && _emailRegExp.hasMatch(value),
   optional: false,
   message: 'Either the email field is empty or invalid!',
+),
+```
+
+##### 🟣 Request Query Validation
+
+```dart
+ValidationRule.query(
+  'filter',
+  (value) => ['name', 'age', 'email'].contains(value),
+  optional: true,
+  message: 'Valid filters are - name, age, and email.',
 ),
 ```
 
@@ -102,7 +115,7 @@ See the [example][example] Dart Frog app.
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [coverage_badge]: https://raw.githubusercontent.com/thecodexhub/request-validator/main/coverage_badge.svg
-[build_status_badge]: https://github.com/thecodexhub/request-validator/workflows/ci/badge.svg
+[build_status_badge]: https://github.com/thecodexhub/request-validator/actions/workflows/main.yaml/badge.svg?branch=main
 [build_status_link]: https://github.com/thecodexhub/request-validator/actions
 [example]: ./example/
 [package_version]: https://img.shields.io/pub/v/request_validator.svg

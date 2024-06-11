@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:request_validator/request_validator.dart';
 
 /// {@template validation_rule}
 /// A [ValidationRule] represents the validation logic of a single
@@ -17,6 +18,8 @@ class ValidationRule {
     this.message,
   });
 
+  /// {@macro validation_rule}
+  ///
   /// Constructor which creates a [ValidationRule] for request body fields.
   const ValidationRule.body(
     String fieldName,
@@ -24,19 +27,32 @@ class ValidationRule {
     bool? optional,
     String? message,
   }) : this._(
-          location: 'body',
+          location: Location.body,
           fieldName: fieldName,
           validator: validator,
           optional: optional ?? false,
           message: message,
         );
 
-  /// The location from where the field is picked. This parameter
-  /// currently only extracts fields from request body to validate. Other
-  /// locations, e.g., params, query, form-data will be introduced later.
+  /// {@macro validation_rule}
   ///
-  // TODO(thecodexhub): Add support for other field location.
-  final String location;
+  /// Constructor which creates a [ValidationRule] for request query params.
+  ValidationRule.query(
+    String fieldName,
+    bool Function(String) validator, {
+    bool? optional,
+    String? message,
+  }) : this._(
+          location: Location.query,
+          fieldName: fieldName,
+          validator: (value) => validator(value as String),
+          optional: optional ?? false,
+          message: message,
+        );
+
+  /// The location from where the field is picked. This parameter
+  /// currently only extracts fields from request body and query to validate.
+  final Location location;
 
   /// The name of the field.
   final String fieldName;
@@ -75,8 +91,11 @@ class ValidationRule {
 
   @override
   String toString() {
-    return location == 'body'
-        ? '''ValidationRule.body($fieldName, $validator, optional: $optional, message: $message)'''
-        : '''ValidationRule(location: $location, fieldName: $fieldName, validator: $validator, optional: $optional, message: $message)''';
+    return switch (location) {
+      Location.body =>
+        '''ValidationRule.body($fieldName, $validator, optional: $optional, message: $message)''',
+      Location.query =>
+        '''ValidationRule.query($fieldName, $validator, optional: $optional, message: $message)''',
+    };
   }
 }

@@ -8,6 +8,18 @@ import 'package:request_validator/request_validator.dart';
 /// The type definition for a [Map]
 typedef JsonMap = Map<String, dynamic>;
 
+/// The type definition for request body object. Defines a [Map]
+/// of type String and dynamic.
+typedef RequestBodyObject = Map<String, dynamic>;
+
+/// The type definition for request query object. Defines a [Map]
+/// of type String and String.
+typedef RequestQueryObject = Map<String, String>;
+
+/// The type definition for the request object. Defines a [Record]
+/// of [RequestBodyObject] and [RequestQueryObject].
+typedef RequestObject = (RequestBodyObject, RequestQueryObject);
+
 /// {@template request_validator}
 /// A [RequestValidator] represents a component responsible for validating
 /// incoming HTTP requests. It defines the rules and behaviour for ensuring
@@ -70,15 +82,42 @@ abstract class RequestValidator {
     return '''The field '$fieldName' is invalid. Please check the validation rules for this field.''';
   }
 
+  /// Helper method to extract a [RequestObject] containing objects from
+  /// request body, request query from [Request].
+  Future<RequestObject> _requestObject(
+    Request request, [
+    bool needBody = true,
+  ]) async {
+    const emptyBodyObj = <String, dynamic>{};
+    return (
+      !needBody ? emptyBodyObj : await request.json() as RequestBodyObject,
+      request.uri.queryParameters
+    );
+  }
+
   /// Private method that iterates through validation rules to build
   /// a list of [ValidationError] objects when [ValidationRule] fails.
-  List<ValidationError> _validateRulesAndFindErrors(JsonMap requestBody) {
+  Future<List<ValidationError>> _validateRules(Request request) async {
     final errors = <ValidationError>[];
+
+    // Extract request body and request query.
+    // Request body can only be extracted when Content-Type is provided
+    // with the request, otherwise it throws an error. That's why first
+    // check if the validation rule contains validation with request body.
+    final needBody = validationRules().any(
+      (rule) => rule.location == Location.body,
+    );
+
+    final (requestBody, requestQuery) = await _requestObject(request, needBody);
 
     // Iterate through the validation rules
     for (final rule in validationRules()) {
+      final requestObject = switch (rule.location) {
+        Location.body => requestBody,
+        Location.query => requestQuery,
+      };
       // Check if the field exists in the Request Body
-      final doesFieldExist = requestBody.containsKey(rule.fieldName);
+      final doesFieldExist = requestObject.containsKey(rule.fieldName);
       // Check if the field is optional, then continue if field doesn't exist
       if (!doesFieldExist && rule.optional) continue;
       // If field doesn not exist but field is also not optional, create error
@@ -88,8 +127,15 @@ abstract class RequestValidator {
       }
 
       // Find the value from request body and validate against validator
-      final value = requestBody[rule.fieldName];
-      final isValueValidated = rule.validator(value);
+      final value = requestObject[rule.fieldName];
+      var isValueValidated = false;
+
+      try {
+        isValueValidated = rule.validator(value);
+      } catch (_) {
+        isValueValidated = false;
+      }
+
       // Create a validation error if the validation is unsuccessful
       if (!isValueValidated) {
         errors.add(_buildValidationError(rule, value));
@@ -128,10 +174,8 @@ extension RequestValidatorX on RequestValidator {
         // Find the HTTP Method, and check if it's part of the allowed methods
         final method = context.request.method;
         if (allowedMethods.contains(method)) {
-          // Extract the request body object as JSON.
-          final requestBody = await context.request.json() as JsonMap;
           // Validate against validation rules and build validation errors
-          final validationErrors = _validateRulesAndFindErrors(requestBody);
+          final validationErrors = await _validateRules(context.request);
           // If there's error, return the `onError` Response
           if (validationErrors.isNotEmpty) {
             return onError(validationErrors);
