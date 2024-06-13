@@ -1,6 +1,6 @@
 # Request Validator
 
-A middleware to validate request object before route handler, currently focused with Dart Frog.
+A middleware to validate request objects before route handler, currently focused with Dart Frog.
 
 [![Build Status][build_status_badge]][build_status_link]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
@@ -13,7 +13,7 @@ A middleware to validate request object before route handler, currently focused 
 
 ## 🧭 Overview
 
-This library aims to provide functionalities to simplify request object validation in Dart Frog applications. It allows the definition of custom validation rules for different fields within the request object, ensuring data integrity and preventing invalid processing.
+This library aims to provide functionalities to simplify request objects validation in Dart Frog applications. It allows the definition of custom validation rules for different fields within the request objects, ensuring data integrity and preventing invalid processing.
 
 ## 🚧 Installation
 
@@ -49,8 +49,16 @@ class PersonValidator extends RequestValidator {
   // Override validator rules to handle validating request body and query params
   @override
   List<ValidationRule> validationRules() => [
+        // Validate if the request body contains `name`, and that should be a string
         ValidationRule.body('name', (value) => value is String),
+        // Validate if the request query has `code` field, and
+        // it's value should be greater than 0.
         ValidationRule.query('code', (value) => int.parse(value) > 0),
+        // Validate the request has `Content-Type` header set as `application/json`
+        ValidationRule.headers(
+          HttpHeaders.contentTypeHeader,
+          (value) => value == 'application/json',
+        ),
       ];
 }
 ```
@@ -85,6 +93,17 @@ ValidationRule.query(
   (value) => ['name', 'age', 'email'].contains(value),
   optional: true,
   message: 'Valid filters are - name, age, and email.',
+),
+```
+
+##### 🟣 Request Headers Validation
+
+```dart
+ValidationRule.headers(
+  HttpHeaders.contentTypeHeader,
+  (value) => value == 'application/json',
+  optional: false,
+  message: 'The request must have application/json as content type',
 ),
 ```
 
