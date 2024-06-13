@@ -9,6 +9,9 @@ enum Location {
   /// Indicates the field was extracted from the request body.
   body('BODY'),
 
+  /// Indicates the field was extracted from the request header.
+  headers('HEADERS'),
+
   /// Indicates the field was extracted from the request query parameters.
   query('QUERY');
 

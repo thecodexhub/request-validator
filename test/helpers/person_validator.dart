@@ -20,5 +20,9 @@ class PersonValidator extends RequestValidator {
         ValidationRule.body('name', (value) => value is String),
         ValidationRule.body('age', (value) => value is int && value > 0),
         ValidationRule.query('code', (value) => int.parse(value) > 100),
+        ValidationRule.headers(
+          HttpHeaders.contentTypeHeader,
+          (value) => value == 'application/json',
+        ),
       ];
 }

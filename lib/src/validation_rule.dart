@@ -36,6 +36,22 @@ class ValidationRule {
 
   /// {@macro validation_rule}
   ///
+  /// Constructor which creates a [ValidationRule] for request headers.
+  ValidationRule.headers(
+    String fieldName,
+    bool Function(String) validator, {
+    bool? optional,
+    String? message,
+  }) : this._(
+          location: Location.headers,
+          fieldName: fieldName,
+          validator: (value) => validator(value as String),
+          optional: optional ?? false,
+          message: message,
+        );
+
+  /// {@macro validation_rule}
+  ///
   /// Constructor which creates a [ValidationRule] for request query params.
   ValidationRule.query(
     String fieldName,
@@ -94,6 +110,8 @@ class ValidationRule {
     return switch (location) {
       Location.body =>
         '''ValidationRule.body($fieldName, $validator, optional: $optional, message: $message)''',
+      Location.headers =>
+        '''ValidationRule.headers($fieldName, $validator, optional: $optional, message: $message)''',
       Location.query =>
         '''ValidationRule.query($fieldName, $validator, optional: $optional, message: $message)''',
     };

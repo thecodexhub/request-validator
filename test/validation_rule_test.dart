@@ -31,10 +31,25 @@ void main() {
       );
     }
 
+    ValidationRule createHeadersSubject({
+      String? fieldName,
+      bool Function(String)? validator,
+      bool? optional,
+      String? message,
+    }) {
+      return ValidationRule.headers(
+        fieldName ?? 'name',
+        validator ?? (value) => value.isNotEmpty,
+        optional: optional ?? false,
+        message: message ?? 'Name is required',
+      );
+    }
+
     group('contructor', () {
       test('works perfectly', () {
         expect(createBodySubject, returnsNormally);
         expect(createQuerySubject, returnsNormally);
+        expect(createHeadersSubject, returnsNormally);
       });
     });
 
@@ -68,6 +83,12 @@ void main() {
           createBodySubject().toString(),
           equals(
             '''ValidationRule.body(name, Closure: (dynamic) => bool, optional: false, message: Name is required)''',
+          ),
+        );
+        expect(
+          createHeadersSubject().toString(),
+          equals(
+            '''ValidationRule.headers(name, Closure: (dynamic) => bool, optional: false, message: Name is required)''',
           ),
         );
         expect(

@@ -64,6 +64,9 @@ void main() {
           request = _MockRequest();
           uri = _MockUri();
           when(() => request.method).thenReturn(HttpMethod.post);
+          when(() => request.headers).thenReturn(
+            {HttpHeaders.contentTypeHeader: 'application/json'},
+          );
           when(request.json).thenAnswer(
             (_) => Future.value({'age': 24}),
           );
@@ -136,6 +139,9 @@ void main() {
           request = _MockRequest();
           uri = _MockUri();
           when(() => request.method).thenReturn(HttpMethod.post);
+          when(() => request.headers).thenReturn(
+            {HttpHeaders.contentTypeHeader: 'application/json'},
+          );
           when(request.json).thenAnswer(
             (_) => Future.value({'name': 'test', 'age': 24}),
           );
@@ -183,6 +189,78 @@ void main() {
         });
 
         test('returns 200 when query field passes validation', () async {
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.ok,
+            ),
+          );
+          expect(await response.body(), '');
+        });
+      });
+
+      group('headers', () {
+        setUp(() {
+          context = _MockRequestContext();
+          request = _MockRequest();
+          uri = _MockUri();
+          when(() => request.method).thenReturn(HttpMethod.post);
+          when(() => request.headers).thenReturn(
+            {HttpHeaders.contentTypeHeader: 'application/json'},
+          );
+          when(request.json).thenAnswer(
+            (_) => Future.value({'name': 'test', 'age': 24}),
+          );
+          when(() => uri.queryParameters).thenReturn(
+            {'code': '101'},
+          );
+          when(() => request.uri).thenReturn(uri);
+          when(() => context.request).thenReturn(request);
+        });
+
+        test('returns 400 when headers does not exist', () async {
+          when(() => request.headers).thenReturn({});
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.badRequest,
+            ),
+          );
+          expect(
+            await response.body(),
+            '''{"errors":["The field 'content-type' is invalid. Please check the validation rules for this field."]}''',
+          );
+        });
+
+        test('returns 400 when headers field fails validation', () async {
+          when(() => request.headers).thenReturn(
+            {HttpHeaders.contentTypeHeader: 'application/xml'},
+          );
+          final middleware = createSubject().serveAsMiddleware();
+          final response = await middleware((_) async => Response())(context);
+          expect(
+            response,
+            isA<Response>().having(
+              (r) => r.statusCode,
+              'statusCode',
+              HttpStatus.badRequest,
+            ),
+          );
+          expect(
+            await response.body(),
+            '''{"errors":["The field 'content-type' is invalid. Please check the validation rules for this field."]}''',
+          );
+        });
+
+        test('returns 200 when headers passes validation', () async {
           final middleware = createSubject().serveAsMiddleware();
           final response = await middleware((_) async => Response())(context);
           expect(
