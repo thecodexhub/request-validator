@@ -27,6 +27,11 @@ class PersonValidator extends RequestValidator {
 
   @override
   List<ValidationRule> validationRules() => [
+        ValidationRule.headers(
+          HttpHeaders.contentTypeHeader,
+          (value) => value == 'application/json',
+          message: 'The API only works with content type `application/json`.',
+        ),
         ValidationRule.body(
           'username',
           (value) => value is String && value.isNotEmpty,

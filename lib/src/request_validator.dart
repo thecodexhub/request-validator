@@ -12,13 +12,21 @@ typedef JsonMap = Map<String, dynamic>;
 /// of type String and dynamic.
 typedef RequestBodyObject = Map<String, dynamic>;
 
+/// The type definition for request headers object. Defines a [Map]
+/// of type String and String.
+typedef RequestHeadersObject = Map<String, String>;
+
 /// The type definition for request query object. Defines a [Map]
 /// of type String and String.
 typedef RequestQueryObject = Map<String, String>;
 
 /// The type definition for the request object. Defines a [Record]
-/// of [RequestBodyObject] and [RequestQueryObject].
-typedef RequestObject = (RequestBodyObject, RequestQueryObject);
+/// of [RequestBodyObject], [RequestHeadersObject] and [RequestQueryObject].
+typedef RequestObject = (
+  RequestBodyObject,
+  RequestHeadersObject,
+  RequestQueryObject,
+);
 
 /// {@template request_validator}
 /// A [RequestValidator] represents a component responsible for validating
@@ -83,7 +91,7 @@ abstract class RequestValidator {
   }
 
   /// Helper method to extract a [RequestObject] containing objects from
-  /// request body, request query from [Request].
+  /// request body, request headers, and request query from [Request].
   Future<RequestObject> _requestObject(
     Request request, [
     bool needBody = true,
@@ -91,7 +99,8 @@ abstract class RequestValidator {
     const emptyBodyObj = <String, dynamic>{};
     return (
       !needBody ? emptyBodyObj : await request.json() as RequestBodyObject,
-      request.uri.queryParameters
+      request.headers,
+      request.uri.queryParameters,
     );
   }
 
@@ -108,12 +117,14 @@ abstract class RequestValidator {
       (rule) => rule.location == Location.body,
     );
 
-    final (requestBody, requestQuery) = await _requestObject(request, needBody);
+    final (requestBody, requestHeaders, requestQuery) =
+        await _requestObject(request, needBody);
 
     // Iterate through the validation rules
     for (final rule in validationRules()) {
       final requestObject = switch (rule.location) {
         Location.body => requestBody,
+        Location.headers => requestHeaders,
         Location.query => requestQuery,
       };
       // Check if the field exists in the Request Body

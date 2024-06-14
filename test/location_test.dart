@@ -13,6 +13,14 @@ void main() {
       });
     });
 
+    group('HEADERS', () {
+      test('has correct value and toString', () {
+        final location = Location.headers;
+        expect(location.value, equals('HEADERS'));
+        expect(location.toString(), 'Location.headers');
+      });
+    });
+
     group('QUERY', () {
       test('has correct value and toString', () {
         final location = Location.query;
