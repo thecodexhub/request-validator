@@ -1,3 +1,9 @@
+# 0.3.0
+
+- feat: add request headers validation
+- docs(README): add documentation on headers validation
+- docs(example): update example app to showcase headers validation
+
 # 0.2.0
 
 - feat: add query parameters validation
