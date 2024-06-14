@@ -96,7 +96,7 @@ ValidationRule.query(
 ),
 ```
 
-##### 🟣 Request Headers Validation
+##### 🟢 Request Headers Validation
 
 ```dart
 ValidationRule.headers(

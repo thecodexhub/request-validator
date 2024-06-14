@@ -9,6 +9,17 @@ Content-Type: application/json
   "gender": "male"
 }
 
+### POST /person with invalid Content-Type header
+POST http://localhost:8080/person
+Content-Type: application/xml
+
+{
+  "username": "thecodexhub",
+  "age": 24,
+  "email": "thecodexhubofficial@gmail.com",
+  "gender": "male"
+}
+
 ### POST /person with no username and age field
 POST http://localhost:8080/person
 Content-Type: application/json
